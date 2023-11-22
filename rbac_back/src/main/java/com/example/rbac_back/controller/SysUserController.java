@@ -140,7 +140,7 @@ public class SysUserController {
         if (ObjectUtils.isEmpty(token)) {
             token = request.getHeader("token");
         }
-//获取用户相关信息
+//获取用户相关 信息
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {

@@ -43,15 +43,15 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-    //登录前进行过滤
+        //登录前进行过滤
         http.addFilterBefore(checkTokenFilter,
                 UsernamePasswordAuthenticationFilter.class);
         //登录处理
         http.formLogin()
                 .loginProcessingUrl("/api/user/login")
-    // 设置登录验证成功或失败后的的跳转地址
+                // 设置登录验证成功或失败后的的跳转地址
                 .successHandler(loginSuccessHandler).failureHandler(loginFailureHandler)
-    // 禁用csrf防御机制
+                // 禁用csrf防御机制
                 .and().csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
