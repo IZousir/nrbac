@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
   mysql:
-    container_name: ssadmin-mysql
+    container_name: my-mysql
     image: mysql:8
     restart: unless-stopped
     tty: true
@@ -13,10 +13,10 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
     volumes:
       - mysql:/var/lib/mysql/
-      - ./sql/ssadmin_init.sql:/docker-entrypoint-initdb.d/ssadmin_init.sql:ro
+      - ./sql/rbac_init.sql:/docker-entrypoint-initdb.d/rbac_init.sql:ro
   
   redis:
-    container_name: ssadmin-redis
+    container_name: my-redis
     image: redis:6-alpine
     restart: unless-stopped
     ports:
@@ -25,43 +25,43 @@ services:
       - redis:/data
 
   server:
-    container_name: ssadmin-server
+    container_name: my-server
     build:
-      context: ./ssadmin-server/
+      context: ./vue-element-admin-master/
       dockerfile: Dockerfile-skywalking # 指定 Dockerfile 的文件名
-    image: ssadmin-server
+    image: my-server
     restart: unless-stopped
     ports:
-      - "28080:28080"
+      - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: local
       JAVA_OPTS: >-
         ${JAVA_OPTS:-}
         -javaagent:/app/skywalking-agent/skywalking-agent.jar
-        -Dskywalking.agent.service_name=ssadmin-server
+        -Dskywalking.agent.service_name=my-server
         -Dskywalking.collector.backend_service=skywalking-oap:11800
         -Xms512m
         -Xmx512m
         -Djava.security.egd=file:/dev/./urandom
       ARGS:
-        --spring.datasource.url=${DATASOURCE_URL:-jdbc:mysql://ssadmin-mysql:3306/ssadmin?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true}
+        --spring.datasource.url=${DATASOURCE_URL:-jdbc:mysql://my-mysql:3306/db_authority_system?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true}
         --spring.datasource.username=${DATASOURCE_USERNAME:-root}
         --spring.datasource.password=${DATASOURCE_PASSWORD:-123456}
-        --spring.redis.host=${REDIS_HOST:-ssadmin-redis}
+        --spring.redis.host=${REDIS_HOST:-my-redis}
     depends_on:
       - mysql
       - redis
       - skywalking-oap
 
   web:
-    container_name: ssadmin-web
+    container_name: my-web
     build:
-      context: ./ssadmin-web
+      context: ./my-web
       args:
         NODE_ENV:
           ENV=${NODE_ENV:-production}
           VUE_APP_TITLE=${VUE_APP_TITLE:-SSADMIN管理系统}
-    image: ssadmin-web
+    image: my-web
     restart: unless-stopped
     ports:
       - "80:80"
@@ -81,7 +81,7 @@ services:
     image: apache/skywalking-ui:latest # 使用最新版 SkyWalking UI
     container_name: skywalking-ui
     ports:
-      - "8080:8080" # UI 端口
+      - "28080:8080" # UI 端口
     depends_on:
       - skywalking-oap
     networks:

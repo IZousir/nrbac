@@ -4,7 +4,7 @@ RUN mkdir -p /rbac_back
 WORKDIR /rbac_back
 
 ## 将Jar 文件复制到镜像中
-COPY ./rbac_back/target/ssadmin-system.jar app.jar
+COPY ./rbac_back/target/rbac_back-0.0.1-SNAPSHOT.jar app.jar
 
 ## 设置 TZ 时区
 ENV TZ=Asia/Shanghai
@@ -15,7 +15,7 @@ ENV JAVA_OPTS="-Xms512m -Xmx512m -Djava.security.egd=file:/dev/./urandom"
 ## 应用参数
 ENV ARGS=""
 
-EXPOSE 28080
+EXPOSE 8080
 
 ## 启动后端项目
 CMD java ${JAVA_OPTS} -jar app.jar $ARGS
